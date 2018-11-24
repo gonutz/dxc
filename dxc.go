@@ -16,18 +16,22 @@ var (
 // target.
 //
 // sourceCode is an ASCII string that defines either the HLSL shader code or the
-//            effect code.
+// effect code.
+//
 // entryPoint is the name of the shader entry point function where shader
-//            execution begins. When you compile using a fx profile (for
-//            example, fx_4_0, fx_5_0, and so on), set this to "". For all other
-//            shader profiles, a valid pEntrypoint is required.
+// execution begins. When you compile using a fx profile (for example, fx_4_0,
+// fx_5_0, and so on), set this to "". For all other shader profiles, a valid
+// pEntrypoint is required.
+//
 // target specifies the shader target or set of shader features to compile
-//        against. The shader target can be shader model 2, shader model 3,
-//        shader model 4, or shader model 5. The target can also be an effect
-//        type (for example, fx_4_1).
+// against. The shader target can be shader model 2, shader model 3, shader
+// model 4, or shader model 5. The target can also be an effect type (for
+// example, fx_4_1).
+//
 // compileFlags can be a combination of the constants defined below.
+//
 // effectFlags can be a combination of the constants defined below. When you
-//             compile a shader and not an effect file, set this to 0.
+// compile a shader and not an effect file, set this to 0.
 func Compile(
 	sourceCode string,
 	entryPoint string,
