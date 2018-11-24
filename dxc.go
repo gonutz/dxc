@@ -2,6 +2,7 @@ package dxc
 
 import (
 	"errors"
+	"strconv"
 	"syscall"
 	"unsafe"
 )
@@ -11,6 +12,22 @@ var (
 	d3DCompile = dll.NewProc("D3DCompile")
 )
 
+// Compile compiles HLSL code or an effect file into bytecode for a given
+// target.
+//
+// sourceCode is an ASCII string that defines either the HLSL shader code or the
+//            effect code.
+// entryPoint is the name of the shader entry point function where shader
+//            execution begins. When you compile using a fx profile (for
+//            example, fx_4_0, fx_5_0, and so on), set this to "". For all other
+//            shader profiles, a valid pEntrypoint is required.
+// target specifies the shader target or set of shader features to compile
+//        against. The shader target can be shader model 2, shader model 3,
+//        shader model 4, or shader model 5. The target can also be an effect
+//        type (for example, fx_4_1).
+// compileFlags can be a combination of the constants defined below.
+// effectFlags can be a combination of the constants defined below. When you
+//             compile a shader and not an effect file, set this to 0.
 func Compile(
 	sourceCode string,
 	entryPoint string,
@@ -24,17 +41,28 @@ func Compile(
 	if err := d3DCompile.Find(); err != nil {
 		return nil, err
 	}
+
+	var sourcePtr uintptr
 	sourceCodeBytes := []byte(sourceCode)
+	if sourceCode != "" {
+		sourcePtr = uintptr(unsafe.Pointer(&sourceCodeBytes[0]))
+	}
+
+	var entry uintptr
 	entryPointBytes := append([]byte(entryPoint), 0)
+	if entryPoint != "" {
+		entry = uintptr(unsafe.Pointer(&entryPointBytes[0]))
+	}
+
 	targetBytes := append([]byte(target), 0)
 	var output, err *blob
 	ret, _, _ := d3DCompile.Call(
-		uintptr(unsafe.Pointer(&sourceCodeBytes[0])),
+		sourcePtr,
 		uintptr(len(sourceCodeBytes)),
 		0, // source name
 		0, // defines
 		1, // default include handler (D3D_COMPILE_STANDARD_FILE_INCLUDE)
-		uintptr(unsafe.Pointer(&entryPointBytes[0])),
+		entry,
 		uintptr(unsafe.Pointer(&targetBytes[0])),
 		uintptr(compileFlags),
 		uintptr(effectFlags),
@@ -43,8 +71,11 @@ func Compile(
 	)
 	if ret == 0 {
 		return output.bytes(), nil
-	} else {
+	} else if err != nil {
 		return nil, errors.New(string(err.bytes()))
+	} else {
+		return nil, errors.New("D3DCompile returned error code " +
+			strconv.FormatUint(uint64(ret), 10))
 	}
 }
 
