@@ -27,7 +27,7 @@ func Compile(
 		uintptr(len(sourceCodeBytes)),
 		0, // source name
 		0, // defines
-		0, // include handler
+		1, // default include handler (D3D_COMPILE_STANDARD_FILE_INCLUDE)
 		uintptr(unsafe.Pointer(&entryPointBytes[0])),
 		uintptr(unsafe.Pointer(&targetBytes[0])),
 		uintptr(compileFlags),
