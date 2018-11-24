@@ -18,6 +18,12 @@ func Compile(
 	compileFlags uint,
 	effectFlags uint,
 ) ([]byte, error) {
+	if err := dll.Load(); err != nil {
+		return nil, err
+	}
+	if err := d3DCompile.Find(); err != nil {
+		return nil, err
+	}
 	sourceCodeBytes := []byte(sourceCode)
 	entryPointBytes := append([]byte(entryPoint), 0)
 	targetBytes := append([]byte(target), 0)
