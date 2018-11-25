@@ -261,7 +261,7 @@ const (
 
 // effect flags
 const (
-	// EFFECT_CHILD_EFFECT compile the effects (.fx) file to a child effect.
+	// EFFECT_CHILD_EFFECT compiles the effects (.fx) file to a child effect.
 	// Child effects have no initializers for any shared values because these
 	// child effects are initialized in the master effect (the effect pool).
 	EFFECT_CHILD_EFFECT = 1 << 0
