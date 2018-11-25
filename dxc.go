@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	dll        = syscall.NewLazyDLL("D3DCompiler_47.dll")
-	d3DCompile = dll.NewProc("D3DCompile")
+	dll        *syscall.LazyDLL
+	d3DCompile *syscall.LazyProc
 )
 
 // Compile compiles HLSL code or an effect file into bytecode for a given
@@ -39,11 +39,10 @@ func Compile(
 	compileFlags uint,
 	effectFlags uint,
 ) ([]byte, error) {
-	if err := dll.Load(); err != nil {
-		return nil, err
-	}
-	if err := d3DCompile.Find(); err != nil {
-		return nil, err
+	if dll == nil {
+		if err := loadDLL(); err != nil {
+			return nil, err
+		}
 	}
 
 	var sourcePtr uintptr
@@ -81,6 +80,29 @@ func Compile(
 		return nil, errors.New("D3DCompile returned error code " +
 			strconv.FormatUint(uint64(ret), 10))
 	}
+}
+
+func loadDLL() error {
+	// DLL version 47 is the latest as of the time of this writing, find the
+	// latest available version on this system by simply trying to load 47, 46,
+	// 45, ...
+	for i := 47; i >= 0; i-- {
+		nn := strconv.Itoa(i)
+		if i < 10 {
+			nn = "0" + nn // version number is always two digits
+		}
+		dllName := "D3DCompiler_" + nn + ".dll"
+		dll = syscall.NewLazyDLL(dllName)
+		if err := dll.Load(); err == nil {
+			d3DCompile = dll.NewProc("D3DCompile")
+			if err := d3DCompile.Find(); err == nil {
+				return nil
+			}
+		}
+	}
+	dll = nil
+	d3DCompile = nil
+	return errors.New("no D3DCompiler_XX.dll found on the system")
 }
 
 type blob struct {
