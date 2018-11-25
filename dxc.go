@@ -15,8 +15,7 @@ var (
 // Compile compiles HLSL code or an effect file into bytecode for a given
 // target.
 //
-// sourceCode is an ASCII string that defines either the HLSL shader code or the
-// effect code.
+// sourceCode is the HLSL shader code or the effect code in ASCII.
 //
 // entryPoint is the name of the shader entry point function where shader
 // execution begins. When you compile using a fx profile (for example, fx_4_0,
@@ -33,7 +32,7 @@ var (
 // effectFlags can be a combination of the constants defined below. When you
 // compile a shader and not an effect file, set this to 0.
 func Compile(
-	sourceCode string,
+	sourceCode []byte,
 	entryPoint string,
 	target string,
 	compileFlags uint,
@@ -46,9 +45,8 @@ func Compile(
 	}
 
 	var sourcePtr uintptr
-	sourceCodeBytes := []byte(sourceCode)
-	if sourceCode != "" {
-		sourcePtr = uintptr(unsafe.Pointer(&sourceCodeBytes[0]))
+	if len(sourceCode) != 0 {
+		sourcePtr = uintptr(unsafe.Pointer(&sourceCode[0]))
 	}
 
 	var entry uintptr
@@ -61,7 +59,7 @@ func Compile(
 	var output, err *blob
 	ret, _, _ := d3DCompile.Call(
 		sourcePtr,
-		uintptr(len(sourceCodeBytes)),
+		uintptr(len(sourceCode)),
 		0, // source name
 		0, // defines
 		1, // default include handler (D3D_COMPILE_STANDARD_FILE_INCLUDE)
