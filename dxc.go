@@ -20,12 +20,12 @@ var (
 // entryPoint is the name of the shader entry point function where shader
 // execution begins. When you compile using a fx profile (for example, fx_4_0,
 // fx_5_0, and so on), set this to "". For all other shader profiles, a valid
-// pEntrypoint is required.
+// entryPoint is required.
 //
 // target specifies the shader target or set of shader features to compile
 // against. The shader target can be shader model 2, shader model 3, shader
-// model 4, or shader model 5. The target can also be an effect type (for
-// example, fx_4_1).
+// model 4, or shader model 5 (e.g. vs_2_0 or ps_4_1). The target can also be an
+// effect type (e.g. fx_4_1).
 //
 // compileFlags can be a combination of the constants defined below.
 //
