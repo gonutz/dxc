@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"io"
 	"os"
@@ -11,6 +12,12 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	target := flag.String("T", "", "target profile, e.g. vs_2_0, ps_4_1, fx_5_0 etc.")
 	entryPoint := flag.String("E", "main", "entrypoint name")
 	debug := flag.Bool("Zi", false, "enable debug information in output")
@@ -35,8 +42,9 @@ func main() {
 	flag.Parse()
 
 	if len(flag.Args()) > 1 {
-		os.Stderr.WriteString("Invalid arguments: " + strings.Join(flag.Args(), " "))
-		return
+		msg := "Invalid arguments: " + strings.Join(flag.Args(), " ")
+		os.Stderr.WriteString(msg)
+		return errors.New(msg)
 	}
 
 	var compileFlags uint
@@ -75,7 +83,7 @@ func main() {
 	var code bytes.Buffer
 	if _, err := io.Copy(&code, os.Stdin); err != nil {
 		os.Stderr.WriteString(err.Error())
-		return
+		return err
 	}
 
 	output, err := dxc.Compile(
@@ -87,10 +95,13 @@ func main() {
 	)
 	if err != nil {
 		os.Stderr.WriteString(err.Error())
-		return
+		return err
 	}
 
 	if _, err := os.Stdout.Write(output); err != nil {
 		os.Stderr.WriteString(err.Error())
+		return err
 	}
+
+	return nil
 }
