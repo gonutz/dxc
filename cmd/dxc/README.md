@@ -1,13 +1,19 @@
 Compile DirectX Shaders from Go
 ===============================
 
-`dxc` is a command line too to compiler DirectX shaders and effects. It uses the D3DCompiler_XX.dll DLLs that come with any Windows system.
+`dxc` is a command line too to compiler DirectX shaders and effects. It uses
+the D3DCompiler_XX.dll DLLs that come with any Windows system.
 
 To install the tool, call
 
-	go get -u github.com/gonutz/dxc/cmd/dxc
-	
-where the `-u` option will get the latest version from [the Github repository](https://github.com/gonutz/dxc).
+	go install github.com/gonutz/dxc/cmd/dxc@latest
+
+`dxc` takes its input from stdin and outputs the shader code to stdout. Errors
+go to stderr.
+
+Example:
+
+    dxc -WX -T vs_2_0 < vertex_shader.hlsl > vertex_shader_blob.bin
 
 ```
 Usage of dxc:
